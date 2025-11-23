@@ -1,0 +1,19 @@
+{
+  "name": "attacktree",
+  "version": "1.0.0",
+  "description": "frontend: react\r visualization library: cytoscape.js\r backend: node.js + express\r database: postregsql\r frontend: localhost:5173\r backend: localhost:3001",
+  "main": "index.js",
+  "scripts": {
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm run dev",
+    "start": "npm-run-all --parallel start:frontend start:backend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
