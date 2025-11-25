@@ -1,10 +1,10 @@
-const CircleNode = ({ data }: { data: { label: string } }) => {
+const RectangleNode = ({ data }: { data: { label: string } }) => {
 	return (
 		<div
 			style={{
 				padding: "10px",
 				border: "2px solid #007BFF",
-				borderRadius: "50%",
+				borderRadius: "10%",
 				backgroundColor: "#E3F2FD",
 				textAlign: "center",
 				width: "80px",
@@ -19,4 +19,4 @@ const CircleNode = ({ data }: { data: { label: string } }) => {
 	);
 };
 
-export default CircleNode;
+export default RectangleNode;

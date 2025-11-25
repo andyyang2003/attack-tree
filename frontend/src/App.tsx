@@ -1,37 +1,57 @@
-import { ReactFlow, Background, Controls, applyNodeChanges, type NodeChange } from "@xyflow/react";
+import { useEffect, useMemo, useState } from "react";
+import {
+	ReactFlow,
+	Background,
+	Controls,
+	addEdge,
+	useEdgesState,
+	type Node,
+	type Edge,
+	type Connection,
+} from "@xyflow/react";
+import CircleNode from "./components/CircleNode";
+import RectangleNode from "./components/RectangleNode";
 import useNodes from "./hooks/useNodes";
-import CustomNode from "./components/CircleNode.tsx";
-import { useEffect } from "react";
 
-// Use a type-only import for FlowNode
-import type { Node as FlowNode } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 
-const App = () => {
-	const initialNodes = [
+function App() {
+	// Initial nodes
+	const initialNodes: Node[] = [
 		{
 			id: "1",
 			position: { x: 100, y: 100 },
 			data: { label: "First Move" },
-		},
-		{
-			id: "2",
-			position: { x: 200, y: 200 },
-			data: { label: "Second Move" },
+			type: "circle",
 		},
 	];
 
-	// Ensure proper integration of useNodes with ReactFlow
-	const { nodes, setNodes, addNode, deleteNode } = useNodes(initialNodes);
+	// Initial edges
+	const initialEdges: Edge[] = [];
 
-	const nodeTypes = { custom: CustomNode };
+	// React Flow state hooks
+	const { nodes, addNode, deleteSelectedNodes, onNodesChange } =
+		useNodes(initialNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	// Called when the user connects two nodes
+	const onConnect = (connection: Connection) => {
+		setEdges((prevEdges) => addEdge(connection, prevEdges));
+	};
+
+	const nodeTypes = useMemo(
+		() => ({
+			circle: CircleNode,
+			rectangle: RectangleNode,
+		}),
+		[]
+	);
+
 	useEffect(() => {
-		// Attach the handleKeyDown event listener to the window
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "Delete" && nodes.length > 0) {
-				const selectedNode = nodes.find((node) => node.selected);
-				if (selectedNode) {
-					deleteNode(selectedNode.id);
-				}
+			if (event.key === "Delete") {
+				deleteSelectedNodes();
 			}
 		};
 
@@ -39,47 +59,102 @@ const App = () => {
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [nodes, deleteNode]);
-
-	// Add the onNodeContextMenu event handler for right-click functionality
-	const onNodeContextMenu = (event: React.MouseEvent, node: FlowNode) => {
-		event.preventDefault();
-		deleteNode(node.id);
-	};
-
-	const onNodesChange = (changes: NodeChange[]) => {
-		setNodes((nds) => applyNodeChanges(changes, nds));
-	};
+	}, [deleteSelectedNodes]);
 
 	return (
 		<div style={{ width: "100vw", height: "100vh" }}>
 			<ReactFlow
 				nodes={nodes}
+				edges={edges}
 				nodeTypes={nodeTypes}
-				onNodesChange={onNodesChange} // Pass onNodesChange to ReactFlow
-				onNodeContextMenu={(event, node) => onNodeContextMenu(event, node as FlowNode)} // Explicitly cast node
+				onNodesChange={onNodesChange}
+				onEdgesChange={onEdgesChange}
+				onConnect={onConnect}
 			>
 				<Background />
 				<Controls />
 			</ReactFlow>
-			<button
-				onClick={addNode}
+			<div
 				style={{
 					position: "fixed",
 					bottom: "20px",
 					right: "20px",
-					padding: "10px 20px",
-					backgroundColor: "#007BFF",
-					color: "white",
-					border: "none",
-					borderRadius: "5px",
-					cursor: "pointer",
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "flex-end",
+					gap: "8px",
 				}}
 			>
-				Add Node
-			</button>
+				{isMenuOpen && (
+					<div
+						style={{
+							backgroundColor: "white",
+							borderRadius: "12px",
+							boxShadow: "0 10px 25px rgba(15,23,42,0.2)",
+							padding: "12px",
+							minWidth: "160px",
+						}}
+					>
+						<p style={{ margin: "0 0 8px", fontWeight: 600, color: "#0f172a" }}>
+							Add Move
+						</p>
+						<button
+							onClick={() => {
+								addNode("circle");
+								setIsMenuOpen(false);
+							}}
+							style={{
+								width: "100%",
+								padding: "8px 12px",
+								marginBottom: "6px",
+								borderRadius: "8px",
+								border: "1px solid #cbd5f5",
+								backgroundColor: "#eff6ff",
+								color: "#1d4ed8",
+								fontWeight: 600,
+								cursor: "pointer",
+							}}
+						>
+							Circle
+						</button>
+						<button
+							onClick={() => {
+								addNode("rectangle");
+								setIsMenuOpen(false);
+							}}
+							style={{
+								width: "100%",
+								padding: "8px 12px",
+								borderRadius: "8px",
+								border: "1px solid #cbd5f5",
+								backgroundColor: "#fef3c7",
+								color: "#b45309",
+								fontWeight: 600,
+								cursor: "pointer",
+							}}
+						>
+							Rectangle
+						</button>
+					</div>
+				)}
+				<button
+					onClick={() => setIsMenuOpen((prev) => !prev)}
+					style={{
+						padding: "12px 24px",
+						backgroundColor: isMenuOpen ? "#172554" : "#2563eb",
+						color: "white",
+						border: "none",
+						borderRadius: "9999px",
+						fontWeight: 600,
+						cursor: "pointer",
+						boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+					}}
+				>
+					{isMenuOpen ? "Choose Shape" : "Add Move"}
+				</button>
+			</div>
 		</div>
 	);
-};
+}
 
 export default App;

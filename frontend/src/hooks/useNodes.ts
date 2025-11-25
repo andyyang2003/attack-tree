@@ -1,24 +1,35 @@
-import { useState } from "react";
-import { type Node } from "@xyflow/react";
+import { useCallback } from "react";
+import { useNodesState, type Node } from "@xyflow/react";
+
+type NodeShape = "circle" | "rectangle";
 
 const useNodes = (initialNodes: Node[]) => {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
 
-  const addNode = () => {
-    const newNode: Node = {
-      id: (nodes.length + 1).toString(),
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: `New Move ${nodes.length + 1}` },
-      type: "custom",
-    };
-    setNodes((nds) => nds.concat(newNode));
-  };
+  const addNode = useCallback(
+    (shape: NodeShape = "circle") => {
+      setNodes((currentNodes) => {
+        const nextIndex = currentNodes.length + 1;
+        const newNode: Node = {
+          id: nextIndex.toString(),
+          position: {
+            x: Math.random() * 400,
+            y: Math.random() * 400,
+          },
+          data: { label: `New Move ${nextIndex}` },
+          type: shape,
+        };
+        return currentNodes.concat(newNode);
+      });
+    },
+    [setNodes],
+  );
 
-  const deleteNode = (nodeId: string) => {
-    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-  };
+  const deleteSelectedNodes = useCallback(() => {
+    setNodes((nds) => nds.filter((node) => !node.selected));
+  }, [setNodes]);
 
-  return { nodes, setNodes, addNode, deleteNode };
+  return { nodes, addNode, deleteSelectedNodes, onNodesChange };
 };
 
 export default useNodes;
