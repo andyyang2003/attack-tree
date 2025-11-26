@@ -95,7 +95,13 @@ function App() {
 							minWidth: "160px",
 						}}
 					>
-						<p style={{ margin: "0 0 8px", fontWeight: 600, color: "#0f172a" }}>
+						<p
+							style={{
+								margin: "0 0 8px",
+								fontWeight: 600,
+								color: "#0f172a",
+							}}
+						>
 							Add Move
 						</p>
 						<button
