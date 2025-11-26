@@ -1,3 +1,5 @@
+import { Handle, Position } from "@xyflow/react";
+
 const CircleNode = ({ data }: { data: { label: string } }) => {
 	return (
 		<div
@@ -14,7 +16,9 @@ const CircleNode = ({ data }: { data: { label: string } }) => {
 				alignItems: "center",
 			}}
 		>
+			<Handle type="target" position={Position.Left} style={{ borderRadius: "50%" }} />
 			{data.label}
+			<Handle type="source" position={Position.Right} style={{ borderRadius: "50%" }} />
 		</div>
 	);
 };
